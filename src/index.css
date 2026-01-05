@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 77 82% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 77 82% 56%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 77 82% 56%;
+
+    --radius: 0.5rem;
+
+    /* Custom logo green */
+    --logo-green: 84 82% 48%;
+    --logo-green-hover: 84 82% 42%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222.2 84% 4.9%;
+    --sidebar-primary: 77 82% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 77 82% 56%;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 47.4% 11.2%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 77 82% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 77 82% 56%;
+
+    /* Custom logo green (same in dark mode) */
+    --logo-green: 84 82% 48%;
+    --logo-green-hover: 84 82% 42%;
+
+    /* Sidebar dark mode */
+    --sidebar-background: 222.2 47.4% 11.2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 77 82% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 77 82% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Elms Sans', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Custom cursor styles for sidebar */
+  .sidebar-nav-item {
+    cursor: pointer;
+  }
+  
+  .sidebar-nav-item:hover {
+    cursor: pointer;
+  }
+  
+  /* Smooth scrollbar styling with brand color */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(183, 235, 52, 0.2);
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(183, 235, 52, 0.4);
+  }
+  
+  /* Custom cursor for interactive sidebar elements */
+  aside nav a {
+    cursor: pointer;
+  }
+  
+  aside nav a:hover {
+    cursor: pointer;
+  }
+  
+  /* Smooth animations */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 6px rgba(183, 235, 52, 0.6);
+    }
+    50% {
+      opacity: 0.8;
+      box-shadow: 0 0 12px rgba(183, 235, 52, 0.8);
+    }
+  }
+  
+  /* Attractive icon flip animation for Add/Create/New buttons */
+  @keyframes icon-flip {
+    0% {
+      transform: rotateY(0deg) scale(1);
+    }
+    50% {
+      transform: rotateY(180deg) scale(1.1);
+    }
+    100% {
+      transform: rotateY(360deg) scale(1);
+    }
+  }
+  
+  .icon-flip-hover:hover .icon-flip-animate {
+    animation: icon-flip 0.6s ease-in-out;
+  }
+  
+  .icon-flip-hover:active .icon-flip-animate {
+    animation: icon-flip 0.4s ease-in-out;
+  }
+}
