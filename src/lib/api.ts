@@ -51,7 +51,7 @@ function normalizeApiBase(raw?: string): string {
   if (!base) {
     // Use production URL in production, localhost in development
     const isProduction = import.meta.env.PROD || import.meta.env.MODE === 'production';
-    return isProduction 
+    return isProduction
       ? 'http://localhost:5001/api'
       : 'http://localhost:5001/api';
   }
@@ -168,7 +168,7 @@ export async function request<T = any>(
           window.location.href = '/login';
         }
       }
-      
+
       // prefer structured error fields if returned by backend
       const errPayload = parsed.data as any;
       const message = errPayload?.error ?? errPayload?.message ?? res.statusText;
@@ -202,7 +202,7 @@ export async function request<T = any>(
       };
       throw networkErr;
     }
-    
+
     // Handle 401 Unauthorized - redirect to login
     if (err?.status === 401) {
       localStorage.removeItem('token');
@@ -212,7 +212,7 @@ export async function request<T = any>(
         window.location.href = '/login';
       }
     }
-    
+
     // Re-throw ApiError unchanged
     if (err && err.status && err.message) throw err;
     throw { status: 500, message: err?.message ?? 'Network error', details: err } as ApiError;
@@ -519,7 +519,7 @@ export async function listCooperatives(search?: string, status?: string): Promis
   if (status) qp.append('status', status);
   const q = qp.toString() ? `?${qp.toString()}` : '';
   const r = await request(`/admin/cooperatives${q}`);
-  
+
   // Backend returns: { message, cooperatives, pagination }
   // Check both possible response structures
   const rAny = r as any;
@@ -530,7 +530,7 @@ export async function listCooperatives(search?: string, status?: string): Promis
     limit: Array.isArray(cooperatives) ? cooperatives.length : 0,
     totalPages: 1
   };
-  
+
   return {
     message: r.message || 'Cooperatives retrieved successfully',
     data: {
@@ -715,6 +715,10 @@ export async function getContacts(filters?: { status?: string; page?: number; li
   };
 }
 
+export async function getContactById(id: string): Promise<ApiResponse<ContactMessage>> {
+  return request(`/contacts/${encodeURIComponent(id)}`);
+}
+
 export async function respondToContact(contactId: string, response: string): Promise<ApiResponse<ContactMessage>> {
   return request(`/contacts/${encodeURIComponent(contactId)}/respond`, {
     method: 'PUT',
@@ -804,8 +808,8 @@ export async function getAnnouncements(filters?: { type?: string; page?: number;
   if (filters?.limit) qp.append('limit', String(filters.limit));
   const r = await request(`/announcements${qp.toString() ? `?${qp.toString()}` : ''}`);
   const payload = r.data ?? (r as any);
-  return { 
-    message: r.message, 
+  return {
+    message: r.message,
     data: {
       announcements: payload?.announcements ?? payload ?? [],
       pagination: payload?.pagination ?? { page: 1, limit: 20, total: 0, pages: 1 }
@@ -865,14 +869,14 @@ export async function generatePlatformPerformanceReport(period: string): Promise
 
 /* Coop Admin Report Generation (using existing endpoint) */
 export async function generateCooperativeReport(
-  cooperativeId: string, 
-  reportType: 'financial' | 'member', 
+  cooperativeId: string,
+  reportType: 'financial' | 'member',
   period: string
 ): Promise<ApiResponse<any>> {
-  const endpoint = reportType === 'financial' 
+  const endpoint = reportType === 'financial'
     ? `/reports/${encodeURIComponent(cooperativeId)}/financial`
     : `/reports/${encodeURIComponent(cooperativeId)}/member`;
-  
+
   return request(endpoint, {
     method: 'POST',
     body: JSON.stringify({ period })
