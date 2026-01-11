@@ -1,4 +1,3 @@
-/* src/lib/api.ts */
 import {
   User,
   LoginRequest,
@@ -92,7 +91,7 @@ function delay(ms: number) {
 }
 
 // Convert plain object to FormData (reuse)
-function toFormData(obj: Record<string, any>) {
+function toFormData(obj: Record<string, any>): FormData {
   const fd = new FormData();
   Object.entries(obj).forEach(([k, v]) => {
     if (v === undefined || v === null) return;
@@ -101,6 +100,32 @@ function toFormData(obj: Record<string, any>) {
       v.forEach(val => fd.append(k, val instanceof File ? val : String(val)));
     } else fd.append(k, String(v));
   });
+  return fd;
+}
+
+function buildCooperativeFormData(data: CooperativeRequest | UpdateCooperativeData): FormData {
+  const fd = new FormData();
+
+  // Required fields
+  if ('name' in data && data.name) fd.append('name', data.name);
+  if ('registrationNumber' in data && data.registrationNumber) fd.append('registrationNumber', data.registrationNumber);
+  if ('email' in data && data.email) fd.append('email', data.email);
+  if ('phone' in data && data.phone) fd.append('phone', data.phone);
+  if ('address' in data && data.address) fd.append('address', data.address);
+  if ('district' in data && data.district) fd.append('district', data.district);
+  if ('sector' in data && data.sector) fd.append('sector', data.sector);
+  if ('cell' in data && data.cell) fd.append('cell', data.cell);
+  if ('village' in data && data.village) fd.append('village', data.village);
+  if ('type' in data && data.type) fd.append('type', data.type);
+
+  // Optional
+  if ('description' in data && data.description) fd.append('description', data.description);
+
+  // Files
+  if ('logo' in data && data.logo instanceof File) fd.append('logo', data.logo);
+  if ('certificate' in data && data.certificate instanceof File) fd.append('certificate', data.certificate);
+  if ('constitution' in data && data.constitution instanceof File) fd.append('constitution', data.constitution);
+
   return fd;
 }
 
@@ -287,13 +312,13 @@ export function logout() {
 
 /* Cooperative CRUD (FormData helper used) */
 export async function registerCooperative(data: CooperativeRequest): Promise<ApiResponse<Cooperative>> {
-  return request('/cooperatives/register', { method: 'POST', body: toFormData(data) });
+  return request('/cooperatives/register', { method: 'POST', body: buildCooperativeFormData(data) });
 }
 export async function createCooperative(data: CooperativeRequest): Promise<ApiResponse<Cooperative>> {
-  return request('/cooperatives', { method: 'POST', body: toFormData(data) });
+  return request('/cooperatives', { method: 'POST', body: buildCooperativeFormData(data) });
 }
 export async function updateCooperative(data: UpdateCooperativeData): Promise<ApiResponse<Cooperative>> {
-  return request('/cooperatives/profile', { method: 'PUT', body: toFormData(data) });
+  return request('/cooperatives/profile', { method: 'PUT', body: buildCooperativeFormData(data) });
 }
 
 /* Dashboard */

@@ -75,11 +75,14 @@ export type UpdateProfileData = {
 // Cooperative Types
 export type CooperativeRequest = {
   name: string;
+  registrationNumber: string;
   email: string;
   phone: string;
   address: string;
   district: string;
   sector: string;
+  cell: string;
+  village: string;
   type: string;
   description: string;
   logo?: File;
@@ -89,6 +92,7 @@ export type CooperativeRequest = {
 
 export type UpdateCooperativeData = {
   name?: string;
+  registrationNumber?: string;
   logo?: File;
   description?: string;
   type?: string;
@@ -99,6 +103,8 @@ export type UpdateCooperativeData = {
   address?: string;
   district?: string;
   sector?: string;
+  cell?: string;
+  village?: string;
 };
 
 // Dashboard Stats Types
