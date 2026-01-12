@@ -763,6 +763,10 @@ export async function generateFinancialReport(cooperativeId: string, type: 'mont
   return res.blob();
 }
 
+export async function getFinancialSummary(cooperativeId: string): Promise<ApiResponse<FinancialSummary>> {
+  return request(`/accountant/financial-summary/${encodeURIComponent(cooperativeId)}`);
+}
+
 /* Secretary */
 export async function getSecretaryDashboard(cooperativeId: string): Promise<ApiResponse<{ stats: SecretaryDashboardStats }>> {
   return request(`/secretary/dashboard/${encodeURIComponent(cooperativeId)}`);
@@ -820,9 +824,6 @@ export async function createTransaction(cooperativeId: string, transactionData: 
 }
 export async function getTransactionById(transactionId: string): Promise<ApiResponse<Transaction>> {
   return request(`/transactions/transaction/${encodeURIComponent(transactionId)}`);
-}
-export async function getFinancialSummary(cooperativeId: string): Promise<ApiResponse<FinancialSummary>> {
-  return request(`/cooperatives/${encodeURIComponent(cooperativeId)}/financial-summary`);
 }
 
 /* Announcements */
