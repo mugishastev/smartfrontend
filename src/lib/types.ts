@@ -88,6 +88,7 @@ export type CooperativeRequest = {
   logo?: File;
   certificate?: File;
   constitution?: File;
+  foundedDate?: string;
 };
 
 export type UpdateCooperativeData = {

@@ -23,8 +23,11 @@ interface RegisterForm {
   village: string;
   cooperativeType: string;
   description: string;
+  foundedDate?: string;
 
   rcaDocument: File | null;
+  logo: File | null;
+  constitution: File | null;
 }
 
 const RegisterPage: React.FC = () => {
@@ -52,8 +55,11 @@ const RegisterPage: React.FC = () => {
     village: "",
     cooperativeType: "",
     description: "",
+    foundedDate: "",
 
     rcaDocument: null,
+    logo: null,
+    constitution: null,
   });
 
   const handleChange = (
@@ -149,7 +155,10 @@ const RegisterPage: React.FC = () => {
         village: form.village,
         type: form.cooperativeType,
         description: form.description || "",
+        foundedDate: form.foundedDate,
         certificate: form.rcaDocument as File,
+        logo: form.logo || undefined,
+        constitution: form.constitution || undefined,
       });
 
       alert(
@@ -267,10 +276,38 @@ const RegisterPage: React.FC = () => {
                   className={textareaClass}
                 />
 
+                <input name="foundedDate" type="date" placeholder="Founded Date" onChange={handleChange} className={inputClass} />
+
+                <label className="block text-sm font-medium mt-3 mb-1">Upload Certificate (Required)</label>
                 <input
                   type="file"
                   accept=".pdf,.doc,.docx"
-                  onChange={handleFileChange}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setForm({ ...form, rcaDocument: file });
+                  }}
+                  className={inputClass}
+                />
+
+                <label className="block text-sm font-medium mt-3 mb-1">Upload Logo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setForm({ ...form, logo: file });
+                  }}
+                  className={inputClass}
+                />
+
+                <label className="block text-sm font-medium mt-3 mb-1">Upload Constitution</label>
+                <input
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setForm({ ...form, constitution: file });
+                  }}
                   className={inputClass}
                 />
               </>

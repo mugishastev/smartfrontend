@@ -120,6 +120,7 @@ function buildCooperativeFormData(data: CooperativeRequest | UpdateCooperativeDa
 
   // Optional
   if ('description' in data && data.description) fd.append('description', data.description);
+  if ('foundedDate' in data && data.foundedDate) fd.append('foundedDate', data.foundedDate);
 
   // Files
   if ('logo' in data && data.logo instanceof File) fd.append('logo', data.logo);
