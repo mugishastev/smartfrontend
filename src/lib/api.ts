@@ -582,14 +582,23 @@ export async function approveCooperative(id: string, adminData: { adminEmail: st
   }
   return request(`/cooperatives/${encodeURIComponent(id)}/approve`, { method: 'POST', body: JSON.stringify(adminData) });
 }
-export async function rejectCooperative(id: string): Promise<ApiResponse<void>> {
-  return request(`/cooperatives/${encodeURIComponent(id)}/reject`, { method: 'POST' });
+export async function rejectCooperative(id: string, reason: string = 'Criteria not met'): Promise<ApiResponse<void>> {
+  return request(`/cooperatives/${encodeURIComponent(id)}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
 }
-export async function suspendCooperative(id: string): Promise<ApiResponse<void>> {
-  return request(`/cooperatives/${encodeURIComponent(id)}/suspend`, { method: 'POST' });
+export async function suspendCooperative(id: string, reason: string = 'Administrative action'): Promise<ApiResponse<void>> {
+  return request(`/cooperatives/${encodeURIComponent(id)}/suspend`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
 }
-export async function unsuspendCooperative(id: string): Promise<ApiResponse<any>> {
-  return request(`/cooperatives/${encodeURIComponent(id)}/unsuspend`, { method: 'POST' });
+export async function unsuspendCooperative(id: string, reason: string = 'Action reversed'): Promise<ApiResponse<any>> {
+  return request(`/cooperatives/${encodeURIComponent(id)}/unsuspend`, {
+    method: 'POST',
+    body: JSON.stringify({ reason })
+  });
 }
 
 /* Users */

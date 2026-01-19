@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardStatGrid } from "@/components/dashboard/DashboardStatGrid";
 import { DashboardStatCard } from "@/components/dashboard/DashboardStatCard";
+import { CooperativeApprovalModal } from "@/components/CooperativeApprovalModal";
 import { Clock, Building2, Users, DollarSign, ShoppingCart, CheckCircle, Check, Search, Ban, Mail, Phone, MapPin, Calendar, Activity, TrendingUp, AlertCircle, Server, Database, Shield, ArrowUpRight, ArrowDownRight, Eye, FileText, Zap, HardDrive, Network, CheckCircle2, XCircle, AlertTriangle, RefreshCw, MessageCircle } from "lucide-react";
 
 type ContactStatusFilter = 'ALL' | 'PENDING' | 'RESPONDED' | 'CLOSED';
@@ -492,92 +493,10 @@ const Dashboard = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                    <Dialog open={approvalModalOpen} onOpenChange={setApprovalModalOpen}>
-                      <DialogTrigger asChild>
-                        <Button onClick={() => handleAction(approval.id, 'approve')} className="w-full sm:flex-1 min-h-[44px] bg-[#b7eb34] hover:bg-[#a3d72f] text-white text-sm sm:text-base">
-                          <Check className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Approve Cooperative Registration</DialogTitle>
-                          <DialogDescription>
-                            Confirm approval to create the cooperative admin account and notify the cooperative by email.
-                          </DialogDescription>
-                        </DialogHeader>
-                        {selectedCooperative && (
-                          <div className="space-y-6">
-                            <div className="bg-gray-50 p-4 rounded-lg">
-                              <h3 className="font-semibold text-lg mb-4">{selectedCooperative.name}</h3>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div className="flex items-center gap-2">
-                                  <Mail className="h-4 w-4 text-gray-500" />
-                                  <span>{selectedCooperative.email}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4 text-gray-500" />
-                                  <span>{selectedCooperative.phone}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <MapPin className="h-4 w-4 text-gray-500" />
-                                  <span>{selectedCooperative.district}, {selectedCooperative.sector}</span>
-                                </div>
-                                {selectedCooperative.foundedDate && (
-                                  <div className="flex items-center gap-2">
-                                    <Calendar className="h-4 w-4 text-gray-500" />
-                                    <span>Founded: {new Date(selectedCooperative.foundedDate).toLocaleDateString()}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="mt-4">
-                                <p className="text-sm text-gray-600">RCA Number: {selectedCooperative.registrationNumber}</p>
-                                <p className="text-sm text-gray-600">Type: {selectedCooperative.type}</p>
-                              </div>
-                              {selectedCooperative.description && (
-                                <div className="mt-4">
-                                  <p className="text-sm font-medium text-gray-700">Description:</p>
-                                  <p className="text-sm text-gray-600">{selectedCooperative.description}</p>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                              <h4 className="font-semibold text-blue-900 mb-2">Admin Account Details</h4>
-                              <p className="text-sm text-blue-700 mb-3">The following credentials will be created and sent to the cooperative admin:</p>
-                              <div className="space-y-2 text-sm">
-                                <div>
-                                  <span className="font-medium">Email:</span> {selectedCooperative.email}
-                                </div>
-                                <div>
-                                  <span className="font-medium">Password:</span> Admin@{selectedCooperative.registrationNumber}
-                                </div>
-                                <div>
-                                  <span className="font-medium">Name:</span> Admin {selectedCooperative.name}
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                              <Button
-                                onClick={handleApproveCooperative}
-                                disabled={approving}
-                                className="w-full sm:flex-1 min-h-[44px] bg-[#b7eb34] hover:bg-[#a3d72f] text-white text-sm sm:text-base"
-                              >
-                                {approving ? 'Approving...' : 'Confirm Approval'}
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => setApprovalModalOpen(false)}
-                                className="w-full sm:flex-1 min-h-[44px] text-sm sm:text-base"
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </DialogContent>
-                    </Dialog>
+                    <Button onClick={() => handleAction(approval.id, 'approve')} className="w-full sm:flex-1 min-h-[44px] bg-[#b7eb34] hover:bg-[#a3d72f] text-white text-sm sm:text-base">
+                      <Check className="h-4 w-4 mr-2" />
+                      Approve
+                    </Button>
                     {/* Removed reject button - SUPER_ADMIN should only approve pending applications */}
                   </div>
                 </CardContent>
@@ -833,12 +752,11 @@ const Dashboard = () => {
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {recentActivities.slice(0, 10).map((activity: any, index: number) => (
                 <div key={activity.id || index} className="flex items-start gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                  <div className={`p-2 rounded-full ${
-                    activity.action?.includes('APPROVED') ? 'bg-green-100 dark:bg-green-900/30' :
+                  <div className={`p-2 rounded-full ${activity.action?.includes('APPROVED') ? 'bg-green-100 dark:bg-green-900/30' :
                     activity.action?.includes('SUSPENDED') || activity.action?.includes('FAILED') ? 'bg-red-100 dark:bg-red-900/30' :
-                    activity.action?.includes('CREATED') ? 'bg-blue-100 dark:bg-blue-900/30' :
-                    'bg-gray-100 dark:bg-gray-700'
-                  }`}>
+                      activity.action?.includes('CREATED') ? 'bg-blue-100 dark:bg-blue-900/30' :
+                        'bg-gray-100 dark:bg-gray-700'
+                    }`}>
                     {activity.action?.includes('APPROVED') ? (
                       <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                     ) : activity.action?.includes('SUSPENDED') || activity.action?.includes('FAILED') ? (
@@ -860,7 +778,7 @@ const Dashboard = () => {
                       {activity.user && (
                         <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          {activity.user.firstName && activity.user.lastName 
+                          {activity.user.firstName && activity.user.lastName
                             ? `${activity.user.firstName} ${activity.user.lastName}`
                             : activity.user.email || 'Unknown User'}
                         </span>
@@ -897,210 +815,131 @@ const Dashboard = () => {
         </Card>
       )}
 
-        {/* Cooperative Management */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">Cooperative Management</CardTitle>
-            <p className="text-sm text-gray-600">View, approve, suspend, or delete cooperatives</p>
-          </CardHeader>
-          <CardContent>
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search cooperatives..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-11"
-                />
-              </div>
+      {/* Cooperative Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xl">Cooperative Management</CardTitle>
+          <p className="text-sm text-gray-600">View, approve, suspend, or delete cooperatives</p>
+        </CardHeader>
+        <CardContent>
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search cooperatives..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-11"
+              />
             </div>
+          </div>
 
-            {/* Cooperatives Table */}
-            {cooperatives.length === 0 ? (
-              <div className="text-center py-12 text-gray-500">
-                <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="font-medium">No cooperatives found</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold">Cooperative Name</TableHead>
-                    <TableHead className="font-semibold">Type</TableHead>
-                    <TableHead className="font-semibold">Location</TableHead>
-                    <TableHead className="font-semibold">RCA Number</TableHead>
-                    <TableHead className="font-semibold">Members</TableHead>
-                    <TableHead className="font-semibold">Founded</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {(cooperatives ?? []).map((coop) => (
-                    <TableRow key={coop.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-5 w-5 text-blue-600" />
-                          <div>
-                            <p className="font-medium text-gray-900">{coop.name}</p>
-                            {coop.description && (
-                              <p className="text-xs text-gray-500 line-clamp-1 max-w-xs">{coop.description}</p>
-                            )}
-                          </div>
+          {/* Cooperatives Table */}
+          {cooperatives.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="font-medium">No cooperatives found</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-50">
+                  <TableHead className="font-semibold">Cooperative Name</TableHead>
+                  <TableHead className="font-semibold">Type</TableHead>
+                  <TableHead className="font-semibold">Location</TableHead>
+                  <TableHead className="font-semibold">RCA Number</TableHead>
+                  <TableHead className="font-semibold">Members</TableHead>
+                  <TableHead className="font-semibold">Founded</TableHead>
+                  <TableHead className="font-semibold">Status</TableHead>
+                  <TableHead className="font-semibold text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(cooperatives ?? []).map((coop) => (
+                  <TableRow key={coop.id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-5 w-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-gray-900">{coop.name}</p>
+                          {coop.description && (
+                            <p className="text-xs text-gray-500 line-clamp-1 max-w-xs">{coop.description}</p>
+                          )}
                         </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {coop.type}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          <span>{coop.district}, {coop.sector}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 font-mono">
-                        {coop.registrationNumber}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Users className="h-4 w-4 text-gray-500" />
-                          <span className="font-medium">
-                            {coop._count?.users ?? coop.membersCount ?? 0}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600">
-                        {coop.foundedDate ? new Date(coop.foundedDate).toLocaleDateString() : 'N/A'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={`${
-                          coop.status === 'ACTIVE' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
-                          coop.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' :
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {coop.type}
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span>{coop.district}, {coop.sector}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600 font-mono">
+                      {coop.registrationNumber}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Users className="h-4 w-4 text-gray-500" />
+                        <span className="font-medium">
+                          {coop._count?.users ?? coop.membersCount ?? 0}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-gray-600">
+                      {coop.foundedDate ? new Date(coop.foundedDate).toLocaleDateString() : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={`${coop.status === 'ACTIVE' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
+                        coop.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100' :
                           'bg-orange-100 text-green-700 hover:bg-orange-100'
                         }`}>
-                          {coop.status.toLowerCase()}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
-                          {coop.status === 'PENDING' && (
-                            <Dialog open={approvalModalOpen && selectedCooperative?.id === coop.id} onOpenChange={(open) => {
-                              if (!open) {
-                                setApprovalModalOpen(false);
-                                setSelectedCooperative(null);
-                              }
-                            }}>
-                              <DialogTrigger asChild>
-                                <Button 
-                                  onClick={() => handleAction(coop.id, 'approve')}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
-                                <DialogHeader>
-                                  <DialogTitle>Approve Cooperative Registration</DialogTitle>
-                                </DialogHeader>
-                                {selectedCooperative && (
-                                  <div className="space-y-6">
-                                    <div className="bg-gray-50 p-4 rounded-lg">
-                                      <h3 className="font-semibold text-lg mb-4">{selectedCooperative.name}</h3>
-                                      <div className="grid grid-cols-2 gap-4 text-sm">
-                                        <div className="flex items-center gap-2">
-                                          <Mail className="h-4 w-4 text-gray-500" />
-                                          <span>{selectedCooperative.email}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <Phone className="h-4 w-4 text-gray-500" />
-                                          <span>{selectedCooperative.phone}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <MapPin className="h-4 w-4 text-gray-500" />
-                                          <span>{selectedCooperative.district}, {selectedCooperative.sector}</span>
-                                        </div>
-                                        {selectedCooperative.foundedDate && (
-                                          <div className="flex items-center gap-2">
-                                            <Calendar className="h-4 w-4 text-gray-500" />
-                                            <span>Founded: {new Date(selectedCooperative.foundedDate).toLocaleDateString()}</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                      <div className="mt-4">
-                                        <p className="text-sm text-gray-600">RCA Number: {selectedCooperative.registrationNumber}</p>
-                                        <p className="text-sm text-gray-600">Type: {selectedCooperative.type}</p>
-                                      </div>
-                                      {selectedCooperative.description && (
-                                        <div className="mt-4">
-                                          <p className="text-sm font-medium text-gray-700">Description:</p>
-                                          <p className="text-sm text-gray-600">{selectedCooperative.description}</p>
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    <div className="bg-blue-50 p-4 rounded-lg">
-                                      <h4 className="font-semibold text-blue-900 mb-2">Admin Account Details</h4>
-                                      <p className="text-sm text-blue-700 mb-3">The following credentials will be created and sent to the cooperative admin:</p>
-                                      <div className="space-y-2 text-sm">
-                                        <div>
-                                          <span className="font-medium">Email:</span> {selectedCooperative.email}
-                                        </div>
-                                        <div>
-                                          <span className="font-medium">Password:</span> Admin@{selectedCooperative.registrationNumber}
-                                        </div>
-                                        <div>
-                                          <span className="font-medium">Name:</span> Admin {selectedCooperative.name}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                                      <Button
-                                        onClick={handleApproveCooperative}
-                                        disabled={approving}
-                                        className="w-full sm:flex-1 min-h-[44px] bg-[#b7eb34] hover:bg-[#a3d72f] text-white text-sm sm:text-base"
-                                      >
-                                        {approving ? 'Approving...' : 'Confirm Approval'}
-                                      </Button>
-                                      <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                          setApprovalModalOpen(false);
-                                          setSelectedCooperative(null);
-                                        }}
-                                        className="w-full sm:flex-1 min-h-[44px] text-sm sm:text-base"
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </DialogContent>
-                            </Dialog>
-                          )}
-                          <Button 
-                            onClick={() => handleAction(coop.id, 'suspend')}
+                        {coop.status.toLowerCase()}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-2">
+                        {coop.status === 'PENDING' && (
+                          <Button
+                            onClick={() => handleAction(coop.id, 'approve')}
                             variant="ghost"
                             size="sm"
-                            className="h-10 w-10 sm:h-8 sm:w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                            aria-label="Suspend cooperative"
+                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
                           >
-                            <Ban className="h-4 w-4" />
+                            <CheckCircle className="h-4 w-4" />
                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                        )}
+                        <Button
+                          onClick={() => handleAction(coop.id, 'suspend')}
+                          variant="ghost"
+                          size="sm"
+                          className="h-10 w-10 sm:h-8 sm:w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                          aria-label="Suspend cooperative"
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Cooperative Approval Modal */}
+      <CooperativeApprovalModal
+        open={approvalModalOpen}
+        onOpenChange={setApprovalModalOpen}
+        cooperative={selectedCooperative}
+        onApprove={handleApproveCooperative}
+        approving={approving}
+      />
     </div>
   );
 };

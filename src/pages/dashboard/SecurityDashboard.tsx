@@ -494,7 +494,7 @@ const SecurityDashboard = () => {
                   <p className="text-sm text-blue-700">Security enforcement</p>
                 </div>
                 <Badge className="bg-blue-100 text-blue-700 capitalize">
-                  {securityData?.accessControl.passwordPolicies || 'unknown'}
+                  {securityData?.accessControl.passwordPolicies }
                 </Badge>
               </div>
             </div>
@@ -519,7 +519,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-green-100 text-green-700 capitalize">
-                  {securityData?.compliance.gdpr || 'unknown'}
+                  {securityData?.compliance.gdpr }
                 </Badge>
               </div>
 
@@ -532,7 +532,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-blue-100 text-blue-700 capitalize">
-                  {securityData?.compliance.dataEncryption || 'unknown'}
+                  {securityData?.compliance.dataEncryption }
                 </Badge>
               </div>
 
@@ -545,7 +545,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-purple-100 text-purple-700 capitalize">
-                  {securityData?.compliance.auditLogs || 'unknown'}
+                  {securityData?.compliance.auditLogs }
                 </Badge>
               </div>
 
@@ -558,7 +558,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-orange-100 text-orange-700 capitalize">
-                  {securityData?.compliance.backupFrequency || 'unknown'}
+                  {securityData?.compliance.backupFrequency }
                 </Badge>
               </div>
             </div>
