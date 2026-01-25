@@ -28,6 +28,26 @@ export type User = {
   };
   createdAt: string;
   updatedAt: string;
+  // User Settings
+  twoFactorEnabled?: boolean;
+  lastLogin?: string;
+  language?: string;
+  theme?: string;
+  timeZone?: string;
+  dateFormat?: string;
+  currency?: string;
+  notificationSettings?: {
+    email?: boolean;
+    sms?: boolean;
+    inApp?: boolean;
+    types?: {
+      systemAlerts?: boolean;
+      newRegistrations?: boolean;
+      cooperativeRequests?: boolean;
+      financialEvents?: boolean;
+      securityAlerts?: boolean;
+    };
+  };
 };
 
 export type Cooperative = {
@@ -67,9 +87,16 @@ export type RegisterUserRequest = {
 };
 
 export type UpdateProfileData = {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
+  // User Preferences
+  language?: string;
+  theme?: string;
+  timeZone?: string;
+  dateFormat?: string;
+  currency?: string;
+  notificationSettings?: any;
 };
 
 // Cooperative Types
@@ -680,4 +707,42 @@ export type NotificationItem = {
   payload?: any;
   read: boolean;
   createdAt: string;
+};
+
+// Platform Configuration Types (Super Admin)
+export type SystemSettings = {
+  id: string;
+  platformName: string;
+  platformLogo?: string;
+  defaultLanguage: string;
+  maintenanceMode: boolean;
+  maintenanceMessage?: string;
+  apiKeys?: any;
+  brandingConfig?: any;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CooperativeConfig = {
+  id: string;
+  autoApprovalEnabled: boolean;
+  requiredDocuments: string[];
+  minMembers: number;
+  maxMembers?: number;
+  registrationFee: number;
+  approvalWorkflow?: any;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FinancialConfig = {
+  id: string;
+  platformFeePercent: number;
+  commissionRate: number;
+  minTransactionLimit: number;
+  maxTransactionLimit?: number;
+  payoutRules?: any;
+  paymentMethods: string[];
+  createdAt: string;
+  updatedAt: string;
 };

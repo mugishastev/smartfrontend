@@ -75,113 +75,113 @@ const queryClient = new QueryClient();
 const App = () => (
   <ThemeProvider>
     <QueryClientProvider client={queryClient}>
-    <RecentlyViewedProvider>
-    <CompareProvider>
-    <CartProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/services" element={<ServicesPage />} />
-          <Route path="/features" element={<FeaturesPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
+      <RecentlyViewedProvider>
+        <CompareProvider>
+          <CartProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/services" element={<ServicesPage />} />
+                  <Route path="/features" element={<FeaturesPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/verify-email" element={<VerifyEmail />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Public Marketplace - accessible without login */}
-          <Route path="/marketplace" element={<BuyerMarketplace />} />
-          <Route path="/buyer-marketplace" element={<BuyerMarketplace />} />
-          <Route path="/product/:id" element={<ProductDetailPage />} />
+                  {/* Public Marketplace - accessible without login */}
+                  <Route path="/marketplace" element={<BuyerMarketplace />} />
+                  <Route path="/buyer-marketplace" element={<BuyerMarketplace />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
 
-          {/* All dashboard-related routes protected, bootstrapped, and with common layout */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardBootstrap />}>
-              <Route element={<DashboardLayout />}>
-              {/* Super Admin Routes */}
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/cooperatives" element={<CooperativePage />} />
-              <Route path="/users" element={<UsersPage />} />
-              <Route path="/security" element={<SecurityDashboard />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<SettingsPage />} />
+                  {/* All dashboard-related routes protected, bootstrapped, and with common layout */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route element={<DashboardBootstrap />}>
+                      <Route element={<DashboardLayout />}>
+                        {/* Super Admin Routes */}
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/cooperatives" element={<CooperativePage />} />
+                        <Route path="/users" element={<UsersPage />} />
+                        <Route path="/security" element={<SecurityDashboard />} />
+                        <Route path="/reports" element={<Reports />} />
+                        <Route path="/settings/*" element={<SettingsPage />} />
 
-              {/* Buyer Routes */}
-              <Route path="/buyer-dashboard" element={<BuyerDashboard />}>
-                <Route path="settings" element={<BuyerSettingsPage />} />
-              </Route>
-              <Route path="/buyer-marketplace" element={<BuyerMarketplace />} />
-              <Route path="/buyer-orders" element={<BuyerOrders />} />
-              <Route path="/buyer-orders/add" element={<AddBuyerOrder />} />
-              <Route path="/buyer-cart" element={<CartPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/buyer-favorites" element={<BuyerFavorites />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/compare" element={<CompareProductsPage />} />
-              <Route path="/returns" element={<ReturnRequestsPage />} />
-              <Route path="/buyer-payments" element={<BuyerPayments />} />
-              <Route path="/buyer-settings" element={<BuyerSettingsPage />} />
-              
-              {/* Accountant Routes */}
-              <Route path="/accountant-dashboard" element={<AccountantDashboard />} />
-              <Route path="/accountant-settings" element={<AccountantSettingsPage />} />
-              
-              {/* Coop Admin Routes */}
-              <Route path="/coop-dashboard" element={<CoopAdminDashboard />} />
-              <Route path="/coop-members" element={<CoopMembers />} />
-              <Route path="/coop-members/add" element={<AddMember />} />
-              <Route path="/coop-products" element={<CoopProducts />} />
-              <Route path="/coop-products/add" element={<AddProduct />} />
-              <Route path="/coop-finances" element={<CoopFinances />} />
-              <Route path="/coop-announcements" element={<CoopAnnouncements />} />
-              <Route path="/coop-announcements/add" element={<AddAnnouncement />} />
-              <Route path="/coop-settings" element={<CoopSettingsPage />} />
+                        {/* Buyer Routes */}
+                        <Route path="/buyer-dashboard" element={<BuyerDashboard />}>
+                          <Route path="settings" element={<BuyerSettingsPage />} />
+                        </Route>
+                        <Route path="/buyer-marketplace" element={<BuyerMarketplace />} />
+                        <Route path="/buyer-orders" element={<BuyerOrders />} />
+                        <Route path="/buyer-orders/add" element={<AddBuyerOrder />} />
+                        <Route path="/buyer-cart" element={<CartPage />} />
+                        <Route path="/cart" element={<CartPage />} />
+                        <Route path="/buyer-favorites" element={<BuyerFavorites />} />
+                        <Route path="/wishlist" element={<WishlistPage />} />
+                        <Route path="/compare" element={<CompareProductsPage />} />
+                        <Route path="/returns" element={<ReturnRequestsPage />} />
+                        <Route path="/buyer-payments" element={<BuyerPayments />} />
+                        <Route path="/buyer-settings" element={<BuyerSettingsPage />} />
 
-              {/* Member Routes */}
-              <Route path="/member-dashboard" element={<MemberDashboard />} />
-              <Route path="/member-contributions" element={<MemberContributions />} />
-              <Route path="/member-requests" element={<MemberRequests />} />
-              <Route path="/member-products" element={<MemberProducts />} />
-              <Route path="/member-announcements" element={<MemberAnnouncements />} />
-              <Route path="/member-announcements/add" element={<AddAnnouncement />} />
-              <Route path="/member-documents" element={<MemberDocuments />} />
-              <Route path="/member-settings" element={<MemberSettingsPage />} />
-              
-              {/* Regulator Routes */}
-              <Route path="/regulator-dashboard" element={<RegulatorDashboard />} />
-              <Route path="/regulator-cooperatives" element={<RegulatorCooperatives />} />
-              <Route path="/regulator-reports" element={<RegulatorReports />} />
-              <Route path="/regulator-compliance" element={<RegulatorCompliance />} />
-              <Route path="/regulator-approvals" element={<RegulatorApprovals />} />
-              
-              {/* Secretary Routes */}
-              <Route path="/secretary-dashboard" element={<SecretaryDashboard />} />
-              <Route path="/secretary-transactions" element={<SecretaryTransactions />} />
-              <Route path="/secretary-reports" element={<SecretaryReports />} />
-              <Route path="/secretary-settings" element={<SecretarySettingsPage />} />
-              {/* Secretary can also view members for oversight */}
-              <Route path="/coop-members" element={<CoopMembers />} />
-              
-              <Route path="/announcements/add" element={<AddAnnouncement />} />
-              </Route>
-            </Route>
-      </Route>
+                        {/* Accountant Routes */}
+                        <Route path="/accountant-dashboard" element={<AccountantDashboard />} />
+                        <Route path="/accountant-settings" element={<AccountantSettingsPage />} />
 
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-    </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-    </CartProvider>
-    </CompareProvider>
-    </RecentlyViewedProvider>
-  </QueryClientProvider>
-      </ThemeProvider>
-  );
+                        {/* Coop Admin Routes */}
+                        <Route path="/coop-dashboard" element={<CoopAdminDashboard />} />
+                        <Route path="/coop-members" element={<CoopMembers />} />
+                        <Route path="/coop-members/add" element={<AddMember />} />
+                        <Route path="/coop-products" element={<CoopProducts />} />
+                        <Route path="/coop-products/add" element={<AddProduct />} />
+                        <Route path="/coop-finances" element={<CoopFinances />} />
+                        <Route path="/coop-announcements" element={<CoopAnnouncements />} />
+                        <Route path="/coop-announcements/add" element={<AddAnnouncement />} />
+                        <Route path="/coop-settings" element={<CoopSettingsPage />} />
+
+                        {/* Member Routes */}
+                        <Route path="/member-dashboard" element={<MemberDashboard />} />
+                        <Route path="/member-contributions" element={<MemberContributions />} />
+                        <Route path="/member-requests" element={<MemberRequests />} />
+                        <Route path="/member-products" element={<MemberProducts />} />
+                        <Route path="/member-announcements" element={<MemberAnnouncements />} />
+                        <Route path="/member-announcements/add" element={<AddAnnouncement />} />
+                        <Route path="/member-documents" element={<MemberDocuments />} />
+                        <Route path="/member-settings" element={<MemberSettingsPage />} />
+
+                        {/* Regulator Routes */}
+                        <Route path="/regulator-dashboard" element={<RegulatorDashboard />} />
+                        <Route path="/regulator-cooperatives" element={<RegulatorCooperatives />} />
+                        <Route path="/regulator-reports" element={<RegulatorReports />} />
+                        <Route path="/regulator-compliance" element={<RegulatorCompliance />} />
+                        <Route path="/regulator-approvals" element={<RegulatorApprovals />} />
+
+                        {/* Secretary Routes */}
+                        <Route path="/secretary-dashboard" element={<SecretaryDashboard />} />
+                        <Route path="/secretary-transactions" element={<SecretaryTransactions />} />
+                        <Route path="/secretary-reports" element={<SecretaryReports />} />
+                        <Route path="/secretary-settings" element={<SecretarySettingsPage />} />
+                        {/* Secretary can also view members for oversight */}
+                        <Route path="/coop-members" element={<CoopMembers />} />
+
+                        <Route path="/announcements/add" element={<AddAnnouncement />} />
+                      </Route>
+                    </Route>
+                  </Route>
+
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </CartProvider>
+        </CompareProvider>
+      </RecentlyViewedProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
+);
 
 export default App;
