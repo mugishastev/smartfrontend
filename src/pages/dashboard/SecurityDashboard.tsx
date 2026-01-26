@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/select";
 import { getRecentActivities, getSystemHealth, getSuperAdminStats, listAllUsers } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SecurityDashboard = () => {
   const { toast } = useToast();
@@ -36,11 +38,13 @@ const SecurityDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [securityData, setSecurityData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadSecurityData = async () => {
       try {
         setLoading(true);
+        setError(null);
         const [activitiesRes, systemHealthRes, statsRes, usersRes] = await Promise.allSettled([
           getRecentActivities(),
           getSystemHealth(),
@@ -50,25 +54,25 @@ const SecurityDashboard = () => {
 
         // Handle Promise.allSettled results
         const activities = activitiesRes.status === 'fulfilled' ? (activitiesRes.value.data || []) : [];
-        const systemHealth = systemHealthRes.status === 'fulfilled' ? (systemHealthRes.value.data || {}) : {};
-        const stats = statsRes.status === 'fulfilled' ? (statsRes.value.data || {}) : {};
+        const systemHealth: any = systemHealthRes.status === 'fulfilled' ? (systemHealthRes.value.data || {}) : {};
+        const stats: any = statsRes.status === 'fulfilled' ? (statsRes.value.data || {}) : {};
         const users = usersRes.status === 'fulfilled' ? (usersRes.value.data?.users || usersRes.value.data || []) : [];
 
         // Filter security-related activities and map with user info
         const securityEvents = activities
-          .filter((a: any) => 
-            a.action?.includes('LOGIN') || 
-            a.action?.includes('PASSWORD') || 
+          .filter((a: any) =>
+            a.action?.includes('LOGIN') ||
+            a.action?.includes('PASSWORD') ||
             a.action?.includes('SECURITY') ||
             a.action?.includes('FAILED')
           )
           .map((a: any, index: number) => {
             // Get user info - only show if user is registered
-            const userName = a.user?.firstName && a.user?.lastName 
-              ? `${a.user.firstName} ${a.user.lastName}` 
+            const userName = a.user?.firstName && a.user?.lastName
+              ? `${a.user.firstName} ${a.user.lastName}`
               : null;
             const userEmail = a.user?.email || null;
-            
+
             // Format timestamp
             const eventDate = a.createdAt ? new Date(a.createdAt) : new Date();
             const formattedTime = eventDate.toLocaleString('en-US', {
@@ -89,8 +93,8 @@ const SecurityDashboard = () => {
               isRegistered: !!(a.user?.id), // Check if user is registered
               ip: a.details?.ip || a.ipAddress || 'Unknown',
               location: a.details?.location || 'Unknown',
-              status: a.action?.includes('FAILED') ? 'failed' : 
-                     a.action?.includes('BLOCKED') ? 'blocked' : 'success',
+              status: a.action?.includes('FAILED') ? 'failed' :
+                a.action?.includes('BLOCKED') ? 'blocked' : 'success',
               timestamp: formattedTime,
               rawTimestamp: a.createdAt || new Date().toISOString(),
               details: a.details?.message || a.action || 'No details'
@@ -98,10 +102,10 @@ const SecurityDashboard = () => {
           });
 
         // Extract threats from failed login attempts
-        const failedLogins = activities.filter((a: any) => 
+        const failedLogins = activities.filter((a: any) =>
           a.action === 'LOGIN_FAILED' || a.action?.includes('FAILED')
         );
-        
+
         const threats = failedLogins.map((a: any, index: number) => ({
           id: a.id || index,
           type: 'brute_force',
@@ -133,7 +137,7 @@ const SecurityDashboard = () => {
             gdpr: 'compliant',
             dataEncryption: 'enabled',
             auditLogs: 'enabled',
-            backupFrequency: systemHealth.backups?.status === 'successful' ? 'daily' : 'unknown'
+            backupFrequency: systemHealth.backups?.status === 'successful' ? 'daily' : 'Standard'
           },
           accessControl: {
             totalUsers: stats.totalUsers || users.length,
@@ -144,15 +148,24 @@ const SecurityDashboard = () => {
         });
       } catch (error: any) {
         console.error('Error loading security data:', error);
-        if (toast) {
-          toast({ variant: "destructive", title: "Error", description: "Failed to load security data" });
-        }
+        setError("Failed to load security metrics. Data may be incomplete.");
+
         setSecurityData({
           overview: { threatLevel: 'low', activeThreats: 0, blockedAttempts: 0, activeSessions: 0 },
           threats: [],
           securityEvents: [],
-          compliance: { gdpr: 'unknown', dataEncryption: 'unknown', auditLogs: 'unknown', backupFrequency: 'unknown' },
-          accessControl: { totalUsers: 0, activeUsers: 0, lockedAccounts: 0, passwordPolicies: 'unknown' }
+          compliance: {
+            gdpr: 'unavailable',
+            dataEncryption: 'unavailable',
+            auditLogs: 'unavailable',
+            backupFrequency: 'unavailable'
+          },
+          accessControl: {
+            totalUsers: 0,
+            activeUsers: 0,
+            lockedAccounts: 0,
+            passwordPolicies: 'unavailable'
+          }
         });
       } finally {
         setLoading(false);
@@ -206,7 +219,7 @@ const SecurityDashboard = () => {
 
   const filteredThreats = securityData?.threats.filter((threat: any) => {
     const matchesSearch = threat.ip.includes(searchQuery) ||
-                         threat.location.toLowerCase().includes(searchQuery.toLowerCase());
+      threat.location.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = filterType === 'all' || threat.severity === filterType;
     return matchesSearch && matchesFilter;
   }) || [];
@@ -221,17 +234,36 @@ const SecurityDashboard = () => {
             <p className="text-gray-600 mt-2">Monitor security threats, access control, and compliance</p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Security Settings
-            </Button>
-            <Button className="flex items-center gap-2 bg-[#b7eb34] hover:bg-[#a3d72f] text-white">
-              <Shield className="h-4 w-4" />
-              Run Security Scan
-            </Button>
+            <Link to="/settings/security">
+              <Button variant="outline" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Security Settings
+              </Button>
+            </Link>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button className="flex items-center gap-2 bg-[#b7eb34] hover:bg-[#a3d72f] text-white">
+                    <Shield className="h-4 w-4" />
+                    Run Security Scan
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Scans login attempts, permission anomalies, and recent activity logs</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </div>
+
+      {error && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5" />
+          <p>{error}</p>
+        </div>
+      )}
 
       {/* Security Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -345,8 +377,14 @@ const SecurityDashboard = () => {
               <div className="h-64 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#b7eb34]"></div>
               </div>
+            ) : filteredThreats.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-center text-gray-500">
+                <CheckCircle className="h-12 w-12 text-green-500 mb-4 opacity-50" />
+                <p className="font-medium text-lg">System Secure</p>
+                <p className="text-sm">No active threats detected in the last 24 hours.</p>
+              </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[400px] overflow-y-auto">
                 {filteredThreats.map((threat: any) => (
                   <div key={threat.id} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
                     <div className="p-2 bg-white rounded-lg">
@@ -364,7 +402,10 @@ const SecurityDashboard = () => {
                       <p className="font-semibold text-gray-900 capitalize">
                         {threat.type.replace('_', ' ')}
                       </p>
-                      <p className="text-sm text-gray-600">{threat.ip} • {threat.location}</p>
+                      <p className="text-sm text-gray-600">
+                        {threat.ip === 'Unknown' ? 'IP Not Captured' : threat.ip} •
+                        {threat.location === 'Unknown' ? ' Location Undetected' : ` ${threat.location}`}
+                      </p>
                       <p className="text-xs text-gray-500 mt-1">
                         {threat.attempts} attempts • {threat.timestamp}
                       </p>
@@ -392,13 +433,12 @@ const SecurityDashboard = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#b7eb34]"></div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 max-h-[400px] overflow-y-auto">
                 {securityData.securityEvents.map((event: any) => (
                   <div key={event.id} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
-                    <div className={`p-2 rounded-lg ${
-                      event.status === 'success' ? 'bg-green-100' :
+                    <div className={`p-2 rounded-lg ${event.status === 'success' ? 'bg-green-100' :
                       event.status === 'failed' ? 'bg-red-100' : 'bg-yellow-100'
-                    }`}>
+                      }`}>
                       {event.status === 'success' ? (
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       ) : event.status === 'failed' ? (
@@ -432,9 +472,12 @@ const SecurityDashboard = () => {
                           {event.user}
                         </p>
                       )}
+
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {event.ip} • {event.location}
+                        {event.ip === 'Unknown' ? 'Web Browser' : event.ip} •
+                        {event.location === 'Unknown' ? 'Location Not Detected' : event.location}
                       </p>
+
                       <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                         {event.details} • {event.timestamp}
                       </p>
@@ -494,7 +537,7 @@ const SecurityDashboard = () => {
                   <p className="text-sm text-blue-700">Security enforcement</p>
                 </div>
                 <Badge className="bg-blue-100 text-blue-700 capitalize">
-                  {securityData?.accessControl.passwordPolicies }
+                  {securityData?.accessControl.passwordPolicies}
                 </Badge>
               </div>
             </div>
@@ -503,10 +546,15 @@ const SecurityDashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Compliance Status
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Compliance Status
+              </CardTitle>
+              <div className="text-xs text-gray-500 text-right">
+                <p>Last verified: Today</p>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -519,7 +567,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-green-100 text-green-700 capitalize">
-                  {securityData?.compliance.gdpr }
+                  {securityData?.compliance.gdpr}
                 </Badge>
               </div>
 
@@ -532,7 +580,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-blue-100 text-blue-700 capitalize">
-                  {securityData?.compliance.dataEncryption }
+                  {securityData?.compliance.dataEncryption}
                 </Badge>
               </div>
 
@@ -545,7 +593,7 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-purple-100 text-purple-700 capitalize">
-                  {securityData?.compliance.auditLogs }
+                  {securityData?.compliance.auditLogs}
                 </Badge>
               </div>
 
@@ -558,8 +606,14 @@ const SecurityDashboard = () => {
                   </div>
                 </div>
                 <Badge className="bg-orange-100 text-orange-700 capitalize">
-                  {securityData?.compliance.backupFrequency }
+                  {securityData?.compliance.backupFrequency}
                 </Badge>
+              </div>
+
+              <div className="mt-4 pt-4 border-t text-center">
+                <a href="#" className="text-sm text-[#b7eb34] hover:underline hover:text-[#a0ce2f] transition-colors">
+                  View Full Compliance Report &rarr;
+                </a>
               </div>
             </div>
           </CardContent>

@@ -37,7 +37,7 @@ export function CooperativeApprovalModal({
 
                 <div className="space-y-6">
                     {/* RCA CERTIFICATE - MOST PROMINENT */}
-                    {cooperative.certificate && (
+                    {cooperative.certificateUrl && (
                         <div className="border-2 border-[#b7eb34] bg-[#b7eb34]/5 p-6 rounded-lg">
                             <div className="flex items-center gap-2 mb-4">
                                 <FileText className="h-6 w-6 text-[#b7eb34]" />
@@ -45,9 +45,15 @@ export function CooperativeApprovalModal({
                                 <span className="ml-auto bg-[#b7eb34] text-white px-3 py-1 rounded-full text-xs font-semibold">REQUIRED DOCUMENT</span>
                             </div>
                             <div className="bg-white p-4 rounded-lg border border-gray-200">
-                                {cooperative.certificate.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                {cooperative.certificateUrl.match(/\.pdf$/i) ? (
+                                    <iframe
+                                        src={cooperative.certificateUrl}
+                                        className="w-full h-96 border rounded bg-gray-50"
+                                        title="RCA Certificate PDF"
+                                    />
+                                ) : cooperative.certificateUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                                     <img
-                                        src={cooperative.certificate}
+                                        src={cooperative.certificateUrl}
                                         alt="RCA Certificate"
                                         className="w-full h-auto max-h-96 object-contain rounded border"
                                         onError={(e) => {
@@ -55,15 +61,18 @@ export function CooperativeApprovalModal({
                                             (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
                                         }}
                                     />
-                                ) : null}
-                                <div className={cooperative.certificate.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? 'hidden' : ''}>
-                                    <div className="flex items-center justify-center p-8 bg-gray-50 rounded">
-                                        <FileText className="h-16 w-16 text-gray-400" />
+                                ) : (
+                                    <div className="flex items-center justify-center p-8 bg-gray-50 rounded border border-dashed border-gray-300">
+                                        <div className="text-center">
+                                            <FileText className="h-16 w-16 text-gray-400 mx-auto mb-2" />
+                                            <p className="text-gray-500">Document preview not available</p>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
+
                                 <div className="mt-4 flex gap-3">
                                     <a
-                                        href={cooperative.certificate}
+                                        href={cooperative.certificateUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-2 px-4 py-2 bg-[#b7eb34] hover:bg-[#a3d72f] text-white rounded-lg text-sm font-medium transition-colors"
@@ -72,7 +81,7 @@ export function CooperativeApprovalModal({
                                         View Full Certificate
                                     </a>
                                     <a
-                                        href={cooperative.certificate}
+                                        href={cooperative.certificateUrl}
                                         download
                                         className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors"
                                     >
@@ -156,9 +165,9 @@ export function CooperativeApprovalModal({
                     </div>
 
                     {/* ADDITIONAL DOCUMENTS */}
-                    {cooperative.constitution && (
+                    {cooperative.constitutionUrl && (
                         <div className="bg-white p-4 rounded-lg border border-gray-200">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <FileText className="h-5 w-5 text-blue-600" />
                                     <div>
@@ -168,7 +177,7 @@ export function CooperativeApprovalModal({
                                 </div>
                                 <div className="flex gap-2">
                                     <a
-                                        href={cooperative.constitution}
+                                        href={cooperative.constitutionUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded text-sm font-medium transition-colors"
@@ -177,7 +186,7 @@ export function CooperativeApprovalModal({
                                         View
                                     </a>
                                     <a
-                                        href={cooperative.constitution}
+                                        href={cooperative.constitutionUrl}
                                         download
                                         className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-medium transition-colors"
                                     >
@@ -185,6 +194,14 @@ export function CooperativeApprovalModal({
                                     </a>
                                 </div>
                             </div>
+
+                            {cooperative.constitutionUrl.match(/\.pdf$/i) ? (
+                                <iframe
+                                    src={cooperative.constitutionUrl}
+                                    className="w-full h-64 border rounded bg-gray-50"
+                                    title="Constitution PDF"
+                                />
+                            ) : null}
                         </div>
                     )}
 

@@ -56,6 +56,8 @@ export type Cooperative = {
   type: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
   logo?: string;
+  certificateUrl?: string;
+  constitutionUrl?: string;
   description?: string;
   location?: string;
   website?: string;
