@@ -1155,6 +1155,52 @@ export async function createAnnouncement(data: {
   return request('/announcements', { method: 'POST', body: fd });
 }
 
+
+/* Campaigns */
+export async function createCampaign(data: any): Promise<ApiResponse<any>> {
+  return request('/campaigns', { method: 'POST', body: JSON.stringify(data) });
+}
+
+/* Loyalty */
+export async function createLoyaltyTier(data: any): Promise<ApiResponse<any>> {
+  return request('/loyalty/tiers', { method: 'POST', body: JSON.stringify(data) });
+}
+
+/* Job Applications */
+export async function createJobApplication(announcementId: string, data: any): Promise<ApiResponse<any>> {
+  return request('/job-applications', {
+    method: 'POST',
+    body: JSON.stringify({ announcementId, ...data })
+  });
+}
+
+export async function getJobApplicationsByAnnouncement(announcementId: string, cooperativeId?: string): Promise<ApiResponse<any[]>> {
+  const qp = cooperativeId ? `?cooperativeId=${encodeURIComponent(cooperativeId)}` : '';
+  return request(`/job-applications/announcement/${encodeURIComponent(announcementId)}${qp}`);
+}
+
+export async function getJobApplicationsByCooperative(cooperativeId: string): Promise<ApiResponse<any[]>> {
+  return request(`/job-applications/cooperative/${encodeURIComponent(cooperativeId)}`);
+}
+
+export async function updateJobApplicationStatus(id: string, status: string, cooperativeId: string): Promise<ApiResponse<any>> {
+  return request(`/job-applications/${encodeURIComponent(id)}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status, cooperativeId })
+  });
+}
+
+export async function getJobApplicationById(id: string): Promise<ApiResponse<any>> {
+  return request(`/job-applications/${encodeURIComponent(id)}`);
+}
+
+export async function deleteJobApplication(id: string, cooperativeId: string): Promise<ApiResponse<any>> {
+  return request(`/job-applications/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+    body: JSON.stringify({ cooperativeId })
+  });
+}
+
 /* default export for convenience */
 export default {
   request,
@@ -1181,7 +1227,12 @@ export default {
   // Wishlist
   addToWishlist, removeFromWishlist, getWishlist, checkWishlistStatus, getWishlistCount,
   // Recommendations
-  getProductRecommendations, getTrendingProducts, getYouMightLike
+  getProductRecommendations, getTrendingProducts, getYouMightLike,
+  // Campaigns & Loyalty
+  createCampaign, createLoyaltyTier,
+  // Job Applications
+  createJobApplication, getJobApplicationsByAnnouncement, getJobApplicationsByCooperative, updateJobApplicationStatus, getJobApplicationById, deleteJobApplication,
+  // Orders
 };
 
 export async function processPayment(orderId: string, phoneNumber: string): Promise<ApiResponse<any>> {

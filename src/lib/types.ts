@@ -524,6 +524,8 @@ export type Transaction = {
   requiresApproval: boolean;
   isApproved: boolean;
   approvedBy: string[];
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  blockchainHash?: string;
   createdAt: string;
   updatedAt: string;
   user?: {
@@ -547,6 +549,7 @@ export type CreateTransactionRequest = {
   description: string;
   category?: string;
   reference?: string;
+  paymentMethod?: string;
   requiresApproval?: boolean;
 };
 

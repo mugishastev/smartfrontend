@@ -16,9 +16,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Bell, Calendar, FileText, Search, Filter, Eye, ExternalLink } from "lucide-react";
-import { getAnnouncements, getAnnouncementById, getProfile } from "@/lib/api";
+import { Bell, Calendar, FileText, Search, Filter, Eye, ExternalLink, Send } from "lucide-react";
+import { getAnnouncements, getAnnouncementById, getProfile, createJobApplication } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 type Announcement = {
   id: string;
@@ -54,6 +57,17 @@ const MemberAnnouncements = () => {
     limit: 20,
     total: 0,
     pages: 1,
+  });
+
+  // Job Application State
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [applicationForm, setApplicationForm] = useState({
+    resumeUrl: "",
+    coverLetter: "",
+    portfolioUrl: "",
+    yearsOfExperience: 0,
+    education: ""
   });
 
   useEffect(() => {
@@ -101,6 +115,38 @@ const MemberAnnouncements = () => {
       setSelectedAnnouncement(announcement);
     } finally {
       setLoadingDetails(false);
+    }
+  };
+
+  const handleApply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAnnouncement) return;
+
+    try {
+      setSubmittingApplication(true);
+      await createJobApplication(selectedAnnouncement.id, applicationForm);
+      toast({
+        title: "Application Submitted",
+        description: "Your job application has been sent successfully.",
+      });
+      setIsApplyDialogOpen(false);
+      setIsDetailsDialogOpen(false);
+      // Reset form
+      setApplicationForm({
+        resumeUrl: "",
+        coverLetter: "",
+        portfolioUrl: "",
+        yearsOfExperience: 0,
+        education: ""
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Appliction Failed",
+        description: error?.message || "Failed to submit application",
+      });
+    } finally {
+      setSubmittingApplication(false);
     }
   };
 
@@ -384,12 +430,106 @@ const MemberAnnouncements = () => {
                   </div>
                 )}
               </div>
+
+              {/* Apply Button for Job types */}
+              {selectedAnnouncement.type === "Job" && !isExpired(selectedAnnouncement.expiresAt) && (
+                <div className="pt-4 border-t flex justify-end">
+                  <Button
+                    className="bg-[#b7eb34] hover:bg-[#a5d62f] text-white"
+                    onClick={() => setIsApplyDialogOpen(true)}
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Apply for this Position
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               <p>No details available</p>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Job Application Dialog */}
+      <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Job Application</DialogTitle>
+            <DialogDescription>
+              Applying for: {selectedAnnouncement?.title}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleApply} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="resumeUrl">Resume Link (PDF/Google Drive)</Label>
+                <Input
+                  id="resumeUrl"
+                  placeholder="https://..."
+                  value={applicationForm.resumeUrl}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, resumeUrl: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="portfolioUrl">Portfolio/LinkedIn (Optional)</Label>
+                <Input
+                  id="portfolioUrl"
+                  placeholder="https://..."
+                  value={applicationForm.portfolioUrl}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, portfolioUrl: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="exp">Years of Experience</Label>
+                <Input
+                  id="exp"
+                  type="number"
+                  min="0"
+                  value={applicationForm.yearsOfExperience}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, yearsOfExperience: parseInt(e.target.value) || 0 })}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edu">Highest Education Level</Label>
+                <Input
+                  id="edu"
+                  placeholder="e.g. Bachelor's in Agronomy"
+                  value={applicationForm.education}
+                  onChange={(e) => setApplicationForm({ ...applicationForm, education: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="coverLetter">Cover Letter / Why should we hire you?</Label>
+              <Textarea
+                id="coverLetter"
+                placeholder="Share your experience and motivation..."
+                className="min-h-[150px]"
+                value={applicationForm.coverLetter}
+                onChange={(e) => setApplicationForm({ ...applicationForm, coverLetter: e.target.value })}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              <Button type="button" variant="outline" onClick={() => setIsApplyDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-[#b7eb34] hover:bg-[#a5d62f] text-white"
+                disabled={submittingApplication}
+              >
+                {submittingApplication ? "Submitting..." : "Submit Application"}
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
     </div>

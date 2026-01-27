@@ -18,8 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { User } from "@/lib/types";
-import { getAnnouncements, createAnnouncement, getAnnouncementById, updateAnnouncement, deleteAnnouncement } from "@/lib/api";
-import { Bell, Eye, Edit, Trash2, FileText, Calendar, ExternalLink, Plus } from "lucide-react";
+import { getAnnouncements, createAnnouncement, getAnnouncementById, updateAnnouncement, deleteAnnouncement, getJobApplicationsByAnnouncement, updateJobApplicationStatus, deleteJobApplication } from "@/lib/api";
+import { Bell, Eye, Edit, Trash2, FileText, Calendar, ExternalLink, Plus, Users, CheckCircle2, XCircle } from "lucide-react";
 
 type Announcement = {
   id: string;
@@ -64,6 +64,12 @@ const CoopAnnouncements = () => {
   const [viewingAnnouncement, setViewingAnnouncement] = useState<Announcement | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Job Applications Management State
+  const [showApplicationsDialog, setShowApplicationsDialog] = useState(false);
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loadingApplications, setLoadingApplications] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string>("all");
   const [formData, setFormData] = useState<AnnouncementFormData>({
     title: "",
@@ -148,11 +154,11 @@ const CoopAnnouncements = () => {
         type: "GENERAL",
         isPublic: false,
       });
-      
+
       // Reset to "all" filter to show the new announcement
       // This will trigger useEffect which will reload announcements
       setSelectedType("all");
-      
+
       // Also manually reload after a short delay to ensure backend has processed
       setTimeout(() => {
         loadAnnouncements();
@@ -223,7 +229,7 @@ const CoopAnnouncements = () => {
         type: "GENERAL",
         isPublic: false,
       });
-      
+
       loadAnnouncements();
     } catch (error: any) {
       toast({
@@ -263,6 +269,65 @@ const CoopAnnouncements = () => {
   const openDeleteDialog = (announcement: Announcement) => {
     setSelectedAnnouncement(announcement);
     setShowDeleteDialog(true);
+  };
+
+  const handleViewApplications = async (announcement: Announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowApplicationsDialog(true);
+    try {
+      setLoadingApplications(true);
+      const res = await getJobApplicationsByAnnouncement(announcement.id);
+      setApplications(res.data || []);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to load applications",
+      });
+    } finally {
+      setLoadingApplications(false);
+    }
+  };
+
+  const handleUpdateAppStatus = async (appId: string, status: string) => {
+    if (!user?.cooperativeId) return;
+    try {
+      setUpdatingStatus(appId);
+      await updateJobApplicationStatus(appId, status, user.cooperativeId);
+      toast({
+        title: "Success",
+        description: `Application ${status.toLowerCase()} successfully`,
+      });
+      // Refresh applications list
+      const res = await getJobApplicationsByAnnouncement(selectedAnnouncement!.id);
+      setApplications(res.data || []);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update application status",
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const handleDeleteApp = async (appId: string) => {
+    if (!user?.cooperativeId) return;
+    try {
+      await deleteJobApplication(appId, user.cooperativeId);
+      toast({
+        title: "Success",
+        description: "Application deleted successfully",
+      });
+      setApplications(prev => prev.filter(app => app.id !== appId));
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to delete application",
+      });
+    }
   };
 
   return (
@@ -420,10 +485,10 @@ const CoopAnnouncements = () => {
                         <TableCell>
                           <Badge className={
                             announcement.type === "MEETING" ? "bg-blue-100 text-blue-700" :
-                            announcement.type === "TRAINING" ? "bg-green-100 text-green-700" :
-                            announcement.type === "JOB" ? "bg-purple-100 text-purple-700" :
-                            announcement.type === "TENDER" ? "bg-orange-100 text-orange-700" :
-                            "bg-gray-100 text-gray-700"
+                              announcement.type === "TRAINING" ? "bg-green-100 text-green-700" :
+                                announcement.type === "JOB" ? "bg-purple-100 text-purple-700" :
+                                  announcement.type === "TENDER" ? "bg-orange-100 text-orange-700" :
+                                    "bg-gray-100 text-gray-700"
                           }>
                             {announcement.type}
                           </Badge>
@@ -643,10 +708,10 @@ const CoopAnnouncements = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <Badge className={
                         viewingAnnouncement.type === "MEETING" ? "bg-blue-100 text-blue-700" :
-                        viewingAnnouncement.type === "TRAINING" ? "bg-green-100 text-green-700" :
-                        viewingAnnouncement.type === "JOB" ? "bg-purple-100 text-purple-700" :
-                        viewingAnnouncement.type === "TENDER" ? "bg-orange-100 text-orange-700" :
-                        "bg-gray-100 text-gray-700"
+                          viewingAnnouncement.type === "TRAINING" ? "bg-green-100 text-green-700" :
+                            viewingAnnouncement.type === "JOB" ? "bg-purple-100 text-purple-700" :
+                              viewingAnnouncement.type === "TENDER" ? "bg-orange-100 text-orange-700" :
+                                "bg-gray-100 text-gray-700"
                       }>
                         {viewingAnnouncement.type}
                       </Badge>
@@ -762,6 +827,99 @@ const CoopAnnouncements = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Applications Dialog */}
+      <Dialog open={showApplicationsDialog} onOpenChange={setShowApplicationsDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Applications for: {selectedAnnouncement?.title}</DialogTitle>
+          </DialogHeader>
+          {loadingApplications ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#b7eb34]"></div>
+            </div>
+          ) : applications.length === 0 ? (
+            <div className="text-center py-12">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 font-medium">No applications yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Applicant</TableHead>
+                    <TableHead>Experience</TableHead>
+                    <TableHead>Education</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {applications.map((app) => (
+                    <TableRow key={app.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{app.applicantName || "Anonymous"}</p>
+                          <a href={app.resumeUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                            <FileText className="h-3 w-3" /> Resume
+                          </a>
+                        </div>
+                      </TableCell>
+                      <TableCell>{app.yearsOfExperience} yrs</TableCell>
+                      <TableCell className="max-w-[150px] truncate" title={app.education}>
+                        {app.education}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={
+                          app.status === 'APPROVED' ? 'default' :
+                            app.status === 'REJECTED' ? 'destructive' :
+                              'outline'
+                        }>
+                          {app.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-green-600"
+                            onClick={() => handleUpdateAppStatus(app.id, 'APPROVED')}
+                            disabled={updatingStatus === app.id || app.status === 'APPROVED'}
+                            title="Approve"
+                          >
+                            <CheckCircle2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500"
+                            onClick={() => handleUpdateAppStatus(app.id, 'REJECTED')}
+                            disabled={updatingStatus === app.id || app.status === 'REJECTED'}
+                            title="Reject"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-gray-400"
+                            onClick={() => handleDeleteApp(app.id)}
+                            title="Delete"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

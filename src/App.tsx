@@ -57,6 +57,7 @@ import MemberSettingsPage from "./pages/dashboard/MemberSettingsPage";
 import SecretarySettingsPage from "./pages/dashboard/SecretarySettingsPage";
 import AccountantSettingsPage from "./pages/dashboard/AccountantSettingsPage";
 import AccountantDashboard from "./pages/dashboard/AccountantDashboard";
+import AccountantTransactions from "./pages/dashboard/AccountantTransactions";
 import AddMember from "./pages/dashboard/AddMember";
 import AddProduct from "./pages/dashboard/AddProduct";
 import AddAnnouncement from "./pages/dashboard/AddAnnouncement";
@@ -129,6 +130,7 @@ const App = () => (
 
                         {/* Accountant Routes */}
                         <Route path="/accountant-dashboard" element={<AccountantDashboard />} />
+                        <Route path="/accountant-transactions" element={<AccountantTransactions />} />
                         <Route path="/accountant-settings" element={<AccountantSettingsPage />} />
 
                         {/* Coop Admin Routes */}

@@ -1,3 +1,31 @@
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
+import { getProfile, getTransactions, getTransactionById } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
 import { Transaction } from "@/lib/types";
 import { DollarSign, Filter, Eye, Calendar, TrendingUp, TrendingDown, Clock, CheckCircle, XCircle } from "lucide-react";
@@ -111,7 +139,7 @@ const SecretaryTransactions = () => {
   const totalIncome = transactions
     .filter(t => ['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(t.type) && t.status === 'APPROVED')
     .reduce((sum, t) => sum + t.amount, 0);
-  
+
   const totalExpenses = transactions
     .filter(t => ['EXPENSE', 'LOAN'].includes(t.type) && t.status === 'APPROVED')
     .reduce((sum, t) => sum + t.amount, 0);
@@ -282,11 +310,10 @@ const SecretaryTransactions = () => {
                           {transaction.description}
                         </div>
                       </TableCell>
-                      <TableCell className={`font-semibold ${
-                        ['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(transaction.type)
+                      <TableCell className={`font-semibold ${['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(transaction.type)
                           ? 'text-green-600 dark:text-green-400'
                           : 'text-red-600 dark:text-red-400'
-                      }`}>
+                        }`}>
                         {['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(transaction.type) ? '+' : '-'}
                         {formatCurrency(transaction.amount)}
                       </TableCell>
@@ -339,11 +366,10 @@ const SecretaryTransactions = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600 dark:text-white mb-1">Amount</p>
-                    <p className={`font-semibold text-lg ${
-                      ['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(selectedTransaction.type)
+                    <p className={`font-semibold text-lg ${['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(selectedTransaction.type)
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-red-600 dark:text-red-400'
-                    }`}>
+                      }`}>
                       {['INCOME', 'CONTRIBUTION', 'DIVIDEND'].includes(selectedTransaction.type) ? '+' : '-'}
                       {formatCurrency(selectedTransaction.amount)}
                     </p>
