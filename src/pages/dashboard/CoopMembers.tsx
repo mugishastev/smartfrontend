@@ -19,10 +19,6 @@ const CoopMembers = () => {
   const [members, setMembers] = useState<any[]>([]);
   const [profile, setProfile] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [invitations, setInvitations] = useState<any[]>([]);
-  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
-  const [inviteForm, setInviteForm] = useState({ email: "", role: "MEMBER" });
-  const [inviting, setInviting] = useState(false);
   const [bulkUploadDialogOpen, setBulkUploadDialogOpen] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -50,15 +46,9 @@ const CoopMembers = () => {
         // Load members for this cooperative
         const membersRes = await listMembers(profileRes.data.cooperativeId);
         setMembers(membersRes.data?.members || []);
-
-        // Load pending invitations
-        const invitationsRes = await getPendingInvitations();
-        setInvitations(invitationsRes.data?.invitations || invitationsRes.data || []);
       } catch (err: any) {
-        console.error('Error loading members:', err);
         setError(err.message || 'Failed to load members');
         setMembers([]);
-        setInvitations([]);
       } finally {
         setLoading(false);
       }
@@ -66,69 +56,7 @@ const CoopMembers = () => {
     loadMembers();
   }, []);
 
-  const handleInviteMember = async () => {
-    if (!inviteForm.email || !inviteForm.role) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: "Please provide both email and role"
-      });
-      return;
-    }
 
-    setInviting(true);
-    try {
-      const response = await inviteMember(inviteForm.email, inviteForm.role);
-      toast({
-        title: "Member Created",
-        description: `Member account created and credentials sent to ${inviteForm.email}`,
-        className: "bg-green-50 text-green-900 border-green-200"
-      });
-      setInviteDialogOpen(false);
-      setInviteForm({ email: "", role: "MEMBER" });
-
-      // Refresh members list since member is created immediately
-      if (profile?.cooperativeId) {
-        const membersRes = await listMembers(profile.cooperativeId);
-        setMembers(membersRes.data?.members || []);
-      }
-
-      // Refresh invitations (in case there are any old ones)
-      const invitationsRes = await getPendingInvitations();
-      setInvitations(invitationsRes.data?.invitations || invitationsRes.data || []);
-    } catch (error: any) {
-      console.error('Failed to send invitation:', error);
-      const errorMessage = error?.details?.error || error?.message || error?.details || "Failed to send invitation. Please try again.";
-      toast({
-        variant: "destructive",
-        title: "Invitation Failed",
-        description: errorMessage
-      });
-    } finally {
-      setInviting(false);
-    }
-  };
-
-  const handleCancelInvitation = async (invitationId: string) => {
-    try {
-      await cancelInvitation(invitationId);
-      toast({
-        title: "Invitation Cancelled",
-        description: "The invitation has been cancelled successfully",
-        className: "bg-green-50 text-green-900 border-green-200"
-      });
-      // Refresh invitations
-      const invitationsRes = await getPendingInvitations();
-      setInvitations(invitationsRes.data?.invitations || invitationsRes.data || []);
-    } catch (error: any) {
-      console.error('Failed to cancel invitation:', error);
-      toast({
-        variant: "destructive",
-        title: "Cancel Failed",
-        description: error?.message || "Failed to cancel invitation. Please try again."
-      });
-    }
-  };
 
   const handleViewMember = async (member: User) => {
     try {
@@ -137,7 +65,7 @@ const CoopMembers = () => {
       setSelectedMember(member);
       // Use the member data we already have first
       setMemberDetails(member);
-      
+
       // Try to fetch full member details from API
       try {
         const res = await getMemberById(member.id);
@@ -198,7 +126,6 @@ const CoopMembers = () => {
       return;
     }
 
-    setInviting(true);
     try {
       // Assuming inviteMember can be used to resend invitations
       await inviteMember(member.email, member.role);
@@ -207,9 +134,6 @@ const CoopMembers = () => {
         description: `Invitation resent to ${member.email}.`,
         className: "bg-green-50 text-green-900 border-green-200"
       });
-      // Optionally refresh invitations list
-      const invitationsRes = await getPendingInvitations();
-      setInvitations(invitationsRes.data?.invitations || invitationsRes.data || []);
     } catch (error: any) {
       console.error('Failed to resend invitation:', error);
       const errorMessage = error?.details?.error || error?.message || "Failed to resend invitation. Please try again.";
@@ -218,8 +142,6 @@ const CoopMembers = () => {
         title: "Resend Failed",
         description: errorMessage
       });
-    } finally {
-      setInviting(false);
     }
   };
 
@@ -260,7 +182,7 @@ const CoopMembers = () => {
     try {
       // Use the importMembers API function
       const response = await importMembers(selectedFile);
-      
+
       toast({
         title: "Upload Successful",
         description: response.message || `Successfully uploaded ${selectedFile.name}. Members will be added shortly.`,
@@ -278,10 +200,7 @@ const CoopMembers = () => {
         const membersRes = await listMembers(profile.cooperativeId);
         setMembers(membersRes.data?.members || []);
       }
-      
-      // Refresh invitations in case any were created
-      const invitationsRes = await getPendingInvitations();
-      setInvitations(invitationsRes.data?.invitations || invitationsRes.data || []);
+
     } catch (error: any) {
       console.error('Bulk upload error:', error);
       toast({
@@ -386,58 +305,6 @@ const CoopMembers = () => {
             </CardContent>
           </Card>
           <div className="flex gap-3">
-            <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-16 border-[#b7eb34] text-[#b7eb34] hover:bg-[#b7eb34] hover:text-white px-6"
-                >
-                  <MailIcon className="h-4 w-4 mr-2" />
-                  Invite Member
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Invite New Member</DialogTitle>
-                  <DialogDescription>
-                    Enter the member's email address and role. Credentials will be sent via email.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="invite-email">Email Address</Label>
-                    <Input
-                      id="invite-email"
-                      type="email"
-                      placeholder="member@example.com"
-                      value={inviteForm.email}
-                      onChange={(e) => setInviteForm(prev => ({ ...prev, email: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="invite-role">Role</Label>
-                    <Select value={inviteForm.role} onValueChange={(value) => setInviteForm(prev => ({ ...prev, role: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="MEMBER">Regular Member</SelectItem>
-                        <SelectItem value="SECRETARY">Secretary</SelectItem>
-                        <SelectItem value="ACCOUNTANT">Accountant</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={handleInviteMember} disabled={inviting} className="flex-1">
-                      {inviting ? 'Sending...' : 'Send Invitation'}
-                    </Button>
-                    <Button variant="outline" onClick={() => setInviteDialogOpen(false)} className="flex-1">
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
 
             <Dialog open={bulkUploadDialogOpen} onOpenChange={setBulkUploadDialogOpen}>
               <DialogTrigger asChild>
@@ -557,36 +424,6 @@ const CoopMembers = () => {
           </div>
         </div>
 
-        {/* Pending Invitations */}
-        {invitations.length > 0 && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Pending Invitations</h3>
-              <div className="space-y-3">
-                {invitations.map((invitation: any) => (
-                  <div key={invitation.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-5 w-5 text-orange-500" />
-                      <div>
-                        <p className="font-medium text-gray-900">{invitation.email}</p>
-                        <p className="text-sm text-gray-600">Role: {invitation.role} • Expires: {new Date(invitation.expiresAt).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCancelInvitation(invitation.id)}
-                      className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                    >
-                      <X className="h-4 w-4 mr-1" />
-                      Cancel
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Members List */}
         <Card>
@@ -736,12 +573,11 @@ const CoopMembers = () => {
                   </div>
                   <div>
                     <p className="text-gray-500">Role</p>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      memberDetails.role === 'COOP_ADMIN' ? 'bg-purple-100 text-purple-800' :
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${memberDetails.role === 'COOP_ADMIN' ? 'bg-purple-100 text-purple-800' :
                       memberDetails.role === 'SECRETARY' ? 'bg-blue-100 text-blue-800' :
-                      memberDetails.role === 'ACCOUNTANT' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                        memberDetails.role === 'ACCOUNTANT' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                      }`}>
                       {memberDetails.role?.replace('_', ' ') || 'MEMBER'}
                     </span>
                   </div>
@@ -779,8 +615,8 @@ const CoopMembers = () => {
                   <div className="text-sm">
                     <p className="text-gray-500">Cooperative Name</p>
                     <p className="font-semibold text-gray-900">
-                      {typeof memberDetails.cooperative === 'object' 
-                        ? memberDetails.cooperative.name 
+                      {typeof memberDetails.cooperative === 'object'
+                        ? memberDetails.cooperative.name
                         : memberDetails.cooperative}
                     </p>
                   </div>

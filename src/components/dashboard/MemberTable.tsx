@@ -123,10 +123,9 @@ export const MemberTable: React.FC<Props> = ({ members, onView, onEdit, onDelete
                       variant="outline"
                       size="sm"
                       onClick={() => onInvite(member)}
-                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                      title="Invite Member"
+                      className="text-green-600 border-green-200 hover:text-white hover:bg-green-600 hover:border-green-600 font-semibold"
                     >
-                      <Mail className="h-4 w-4" />
+                      Invite
                     </Button>
                   )}
                   {onView && (

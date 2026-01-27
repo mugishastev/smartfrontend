@@ -59,6 +59,7 @@ import AccountantSettingsPage from "./pages/dashboard/AccountantSettingsPage";
 import AccountantDashboard from "./pages/dashboard/AccountantDashboard";
 import AccountantTransactions from "./pages/dashboard/AccountantTransactions";
 import AddMember from "./pages/dashboard/AddMember";
+import EditMember from "./pages/dashboard/EditMember";
 import AddProduct from "./pages/dashboard/AddProduct";
 import AddAnnouncement from "./pages/dashboard/AddAnnouncement";
 import AddBuyerOrder from "./pages/dashboard/AddBuyerOrder";
@@ -137,6 +138,7 @@ const App = () => (
                         <Route path="/coop-dashboard" element={<CoopAdminDashboard />} />
                         <Route path="/coop-members" element={<CoopMembers />} />
                         <Route path="/coop-members/add" element={<AddMember />} />
+                        <Route path="/member/:id/edit" element={<EditMember />} />
                         <Route path="/coop-products" element={<CoopProducts />} />
                         <Route path="/coop-products/add" element={<AddProduct />} />
                         <Route path="/coop-finances" element={<CoopFinances />} />
